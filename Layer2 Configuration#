@@ -1,0 +1,251 @@
+Core
+----
+Configure Trunking [Dynamic]
+----------------------------
+    
+en
+conf t
+hostname SW1
+int range f0/1-8
+switchport mode dynamic desirable
+exit
+
+
+
+en
+conf t
+hostname SW2
+int range f0/1-8
+switchport mode dynamic desirable
+exit
+
+!
+!
+Configure VTP {Dynamic}
+-----------------------
+server
+------
+
+en
+conf t
+hostname CORE
+vtp domain CCNA
+vtp password 123
+exit
+!
+
+DS-1/DS-2
+----
+layer switches
+-------------------
+en
+conf t
+hostname ACC1
+vtp mode client
+vtp domain CCNA
+vtp password 123
+exit
+
+----------------------------------
+VTP VLANS CORE#
+=========
+en
+conf t
+vlan 10
+name It
+vlan 20
+name data
+vlan 30
+name bank
+vlan 40
+name burco
+exit
+
+-----------------------------------
+access switchports
+----------------------
+acc1
+----
+en
+conf t
+int range e0/2-3
+switchport mode access
+switchport access vlan 10
+exit
+
+acc2
+---
+en
+conf t
+int range e0/2-3
+switchport mode access
+switchport access vlan 20
+exit
+
+
+acc3
+---
+en
+conf t
+int range e0/2-3
+switchport mode access
+switchport access vlan 30
+exit
+
+
+acc4
+---
+en
+conf t
+int range e0/2-3
+switchport mode access
+switchport access vlan 40
+exit
+
+---------------------------------
+Assign ip address for end devices
+---------------------------------
+Int vlan/ip routing
+
+DS-1
+---
+en
+conf t
+int vlan 10
+ip add 10.0.0.10 255.0.0.0
+no shut
+end
+exit
+
+en
+conf t
+int vlan 20
+ip add 20.0.0.10 255.0.0.0
+no shut
+ip routing
+exit
+
+DS-2
+---
+en
+conf t
+int vlan 30
+ip add 30.0.0.10 255.0.0.0
+no shut
+end
+exit
+
+
+en
+conf t
+int vlan 40
+ip add 40.0.0.10 255.0.0.0
+no shut
+ip routing
+exit
+--------------------------
+
+STP LOAD BALANCING
+
+DS-1
+---
+en
+conf t
+spanning-tree vlan 10 root primary
+spanning-tree vlan 20 root primary
+spanning-tree vlan 30 root secondary
+spanning-tree vlan 40 root secondary
+exit
+
+DS-2
+---
+en
+conf t
+spanning-tree vlan 30 root primary
+spanning-tree vlan 40 root primary
+spanning-tree vlan 10 root secondary
+spanning-tree vlan 20 root secondary
+exit
+------------------------------------
+Routed port
+===========
+
+DS-1
+====
+en
+conf t
+int e0/3
+no switchport
+ip add 12.0.0.1 255.255.255.252
+no shut
+end
+exit
+
+en
+conf t
+int e0/2
+no switchport
+ip add 13.0.0.1 255.255.255.252
+no shut
+exit
+
+DS-2
+======
+en
+conf t
+int e0/3
+no switchport
+ip add 12.0.0.2 255.255.255.252
+no shut
+end 
+exit
+
+en
+conf t
+int e0/2
+no switchport
+ip add 13.0.0.2 255.255.255.252
+no shut
+exit
+
+
+
+
+
+
+
+Static Routing SW1/SW2
+------------------
+
+DS-1
+---
+en
+conf t
+ip route 30.0.0.0 255.0.0.0 12.0.0.2
+ip route 40.0.0.0 255.0.0.0 12.0.0.2
+end
+ex
+
+
+en
+conf t
+ip route 30.0.0.0 255.0.0.0 13.0.0.2 10
+ip route 40.0.0.0 255.0.0.0 13.0.0.2 10
+ex
+ex
+
+DS-2
+---
+en
+conf t
+ip route 10.0.0.0 255.0.0.0 12.0.0.1
+ip route 20.0.0.0 255.0.0.0 12.0.0.1
+end
+ex
+
+en
+conf t
+ip route 10.0.0.0 255.0.0.0 13.0.0.1 10
+ip route 20.0.0.0 255.0.0.0 13.0.0.1 10
+end
+ex
